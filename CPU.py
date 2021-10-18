@@ -139,12 +139,11 @@ def cpu():
                 else:
                     RegisterFile[ins.rd] = 0
                     # TODO loads type
-       # elif ins.type_inst == 'I(LOAD)':
-
-            # if ins.func3 == 0x0:
-            #
-            # elif ins.func3 == 0x1:
-            #  RegisterFile[ins.rd] =
+        elif ins.type_inst == 'I(LOAD)':
+            if ins.func3 == 0x0:
+                RegisterFile[ins.rd] = memdata.get_data(RegisterFile[ins.rs1] + ins.imm)
+            elif ins.func3 == 0x1:
+                RegisterFile[ins.rd] = memdata.get_data(RegisterFile[ins.rs1] + ins.imm)
 
         # ================ B-Type Section ============ #
         elif ins.type_inst == 'B':
