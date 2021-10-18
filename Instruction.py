@@ -5,8 +5,6 @@ class Instruction:
 
     def __init__(self, opcode='0', type_inst='R', imm='0', func7='0', rs2='0', rs1='0', func3='0', rd='0'):
         self.opcode = opcode
-        print("Address of self = ", id(self))
-
         self.type_inst = type_inst
         self.imm = imm
         self.func7 = func7
@@ -104,11 +102,14 @@ class Instruction:
                     self.rs1 = data_holder[20:15]
                     self.rs2 = data_holder[25:20]
                     self.opcode = opcode_key[6]
-                    imm_p = str(bin(data_holder[32], 1)) + str(bin(data_holder[7], 1))  \
-                        + str(bin(data_holder[30:25], 5)) + str(bin(data_holder[31], 1)) + str(bin(data_holder[12:8], 4))
+                    imm_p = str(bin(data_holder[31],1))+str(bin(data_holder[7],1))+str(bin(data_holder[31:25], 6))\
+                    +str(bin(data_holder[12:8],4))
                     temp = int(imm_p, 2)
-                    temp1 = intbv(temp)
-                    self.imm = intbv(temp1)
+                    if temp >2047:
+                        temp = temp*-1
+                    temp1 = intbv(temp)[12:]
+                    temp2 = temp1[:].signed()
+                    self.imm =  temp2
                     self.type_inst = 'B'
                     return self.opcode, self.rs1, self.type_inst, self.imm, self.func3, self.rs2
 
@@ -127,7 +128,8 @@ class Instruction:
                     return self.opcode, self.type_inst, self.imm, self.rd
                 # TODO add imm value to J-Type
                 if i == 9:  # J-Type
-                    imm_p = str(bin(data_holder[32], 1)) + str(bin(data_holder[20:12], 8)) + str(bin(data_holder[21], 1)) \
+                    imm_p = str(bin(data_holder[31], 1)) + str(bin(data_holder[20:12], 8)) + str(
+                        bin(data_holder[21], 1)) \
                             + str(bin(data_holder[31:22], 4))
                     temp = int(imm_p, 2)
                     temp1 = intbv(temp)
@@ -139,13 +141,19 @@ class Instruction:
 
 
 test = Instruction()
-test.decode(pass_Bits=intbv(int("00000000000000000000011110110111", 2)))
+test.decode(pass_Bits=intbv(int("11111110100010000001101011100011", 2)))
 
-print(bin(test.imm ,12))
-# data_holder = intbv(15049251)
-# imm_p =  str(bin(data_holder[32:25]))+str(bin(data_holder[11:7]))
-# # temp = int(imm_p, 2)
-# # temp1=intbv(temp)
-# #print(bin(temp,12))
-# print(bin(data_holder[32:25]))
 
+# imm bits -> 0, 1, 2,  3,  4,  5,  6,  7,  8,  9, 10, 11
+#bits_order =[8, 9, 10, 11, 25, 26, 27, 28, 29, 30, 7, 31]
+# data_holder = intbv(int("11111110011101011100100011100011", 2))
+# imm_p = str(bin(data_holder[32])) + str(bin(data_holder[8])) + str(bin(data_holder[31:25], 6)) \
+#         + str(bin(data_holder[12:9], 4))
+# temp = int(imm_p, 2)
+# temp1 = intbv(temp)
+# print()
+
+
+
+# pass_Bits=intbv(int("11111110011101011100100011100011", 2))
+# print(bin(pass_Bits[31],1))
