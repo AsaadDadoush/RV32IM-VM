@@ -1,6 +1,7 @@
 from myhdl import *
 from memory import mem
 from Instruction import Instruction
+import syscalls
 
 memText = mem("C:/Users/ksa_j/PycharmProjects/texts/text.txt")
 memdata = mem("C:/Users/ksa_j/PycharmProjects/texts/data.txt")
@@ -42,10 +43,9 @@ def cpu():
             elif ins.func3 == 0x5 & ins.func7 == 0x00:
                 RegisterFile[ins.rd] = RegisterFile[ins.rs1] >> RegisterFile[ins.rs2]
 
-                # TODO zero-extends
                 # shift right Arith*
             elif ins.func3 == 0x5 & ins.func7 == 0x20:
-                RegisterFile[ins.rd] = RegisterFile[ins.rs1] << RegisterFile[ins.rs2]
+                RegisterFile[ins.rd] = RegisterFile[ins.rs1.signed()] << RegisterFile[ins.rs2]
 
                 # Set less than
             elif ins.func3 == 0x2 & ins.func7 == 0x00:
@@ -113,7 +113,7 @@ def cpu():
                 RegisterFile[ins.rd] = RegisterFile[ins.rs1] & ins.imm
 
             # Shift left logical Immediate
-            elif ins.func3 == 0x1 & ins.imm[11:5]==0x00:
+            elif ins.func3 == 0x1 & ins.imm[11:5] == 0x00:
                 RegisterFile[ins.rd] = RegisterFile[ins.rs1] << ins.imm[4:]
 
                 # Shift right logical Immediate
@@ -145,29 +145,44 @@ def cpu():
             elif ins.func3 == 0x1:
                 RegisterFile[ins.rd] = memdata.get_data(RegisterFile[ins.rs1] + ins.imm)
 
+        elif ins.type_inst == 'I(JALR)':
+            RegisterFile[ins.rd] = PC + 4
+            PC = RegisterFile[ins.rs1] + ins.imm.signed()
+
+
         # ================ B-Type Section ============ #
         elif ins.type_inst == 'B':
-                    if ins.func3 == 0x0:  # beq
-                        if RegisterFile[ins.rs1] == RegisterFile[ins.rs2]:
-                            PC = PC + ins.imm
-                            continue
-                    if ins.func3 == 0x1:  # bne
-                        if not (RegisterFile[ins.rs1] == RegisterFile[ins.rs2]):
-                            PC = PC + ins.imm
-                            continue
-                    if ins.func3 == 0x4:  # blt
-                        if RegisterFile[ins.rs1] < RegisterFile[ins.rs2]:
-                            PC = PC + ins.imm
-                            continue
-                    if ins.func3 == 0x5:  # bge
-                        if RegisterFile[ins.rs1] >= RegisterFile[ins.rs2]:
-                            PC = PC + ins.imm
-                            continue
-                    if ins.func3 == 0x6:  # bltu
-                        if RegisterFile[ins.rs1] < RegisterFile[ins.rs2]:
-                            PC = PC + ins.imm
-                            continue
-                    if ins.func3 == 0x7:  # bgeu
-                        if RegisterFile[ins.rs1] >= RegisterFile[ins.rs2]:
-                            PC = PC + ins.imm
-                            continue
+            if ins.func3 == 0x0:  # beq
+                if RegisterFile[ins.rs1] == RegisterFile[ins.rs2]:
+                    PC = PC + ins.imm
+                    continue
+            if ins.func3 == 0x1:  # bne
+                if not (RegisterFile[ins.rs1] == RegisterFile[ins.rs2]):
+                    PC = PC + ins.imm
+                    continue
+            if ins.func3 == 0x4:  # blt
+                if RegisterFile[ins.rs1] < RegisterFile[ins.rs2]:
+                    PC = PC + ins.imm
+                    continue
+            if ins.func3 == 0x5:  # bge
+                if RegisterFile[ins.rs1] >= RegisterFile[ins.rs2]:
+                    PC = PC + ins.imm
+                    continue
+            if ins.func3 == 0x6:  # bltu
+                if RegisterFile[ins.rs1] < RegisterFile[ins.rs2]:
+                    PC = PC + ins.imm
+                    continue
+            if ins.func3 == 0x7:  # bgeu
+                if RegisterFile[ins.rs1] >= RegisterFile[ins.rs2]:
+                    PC = PC + ins.imm
+                    continue
+            # ================ J-Type Section ============ #
+        elif ins.type_inst == 'J':
+            RegisterFile[ins.rd] = PC + 4
+            PC = PC + ins.imm
+
+
+
+    # TODO syscalls
+# def ecall(self):
+# def ebreak(self):

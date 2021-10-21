@@ -16,7 +16,6 @@ class Instruction:
 
     """
         We need to get the following :
-
             Opcode
             Rs1
             Rs2
@@ -24,7 +23,6 @@ class Instruction:
             func7
             func3
             imm ... etc
-
         then pass the arguments to the decode function based on Opcode, func3 , func7
     """
 
@@ -102,14 +100,10 @@ class Instruction:
                     self.rs1 = data_holder[20:15]
                     self.rs2 = data_holder[25:20]
                     self.opcode = opcode_key[6]
-                    imm_p = str(bin(data_holder[31],1))+str(bin(data_holder[7],1))+str(bin(data_holder[31:25], 6))\
-                    +str(bin(data_holder[12:8],4))
-                    temp = int(imm_p, 2)
-                    if temp >2047:
-                        temp = temp*-1
-                    temp1 = intbv(temp)[12:]
-                    temp2 = temp1[:].signed()
-                    self.imm =  temp2
+                    imm_p = str(bin(data_holder[31], 1)) + str(bin(data_holder[7], 1)) + str(bin(data_holder[31:25], 6)) \
+                            + str(bin(data_holder[12:8], 4))
+                    temp = intbv(imm_p)[12:].signed()
+                    self.imm = temp
                     self.type_inst = 'B'
                     return self.opcode, self.rs1, self.type_inst, self.imm, self.func3, self.rs2
 
@@ -129,11 +123,11 @@ class Instruction:
                 # TODO add imm value to J-Type
                 if i == 9:  # J-Type
                     imm_p = str(bin(data_holder[31], 1)) + str(bin(data_holder[20:12], 8)) + str(
-                        bin(data_holder[21], 1)) \
-                            + str(bin(data_holder[31:22], 4))
+                        bin(data_holder[20], 1)) \
+                            + str(bin(data_holder[31:21], 10))
                     temp = int(imm_p, 2)
-                    temp1 = intbv(temp)
-                    self.imm = intbv(temp1)
+                    temp1 = intbv(temp)[12:].signed()
+                    self.imm = temp1
                     self.rd = data_holder[12:7]
                     self.opcode = opcode_key[9]
                     self.type_inst = 'J'
@@ -141,19 +135,5 @@ class Instruction:
 
 
 test = Instruction()
-test.decode(pass_Bits=intbv(int("11111110100010000001101011100011", 2)))
-
-
-# imm bits -> 0, 1, 2,  3,  4,  5,  6,  7,  8,  9, 10, 11
-#bits_order =[8, 9, 10, 11, 25, 26, 27, 28, 29, 30, 7, 31]
-# data_holder = intbv(int("11111110011101011100100011100011", 2))
-# imm_p = str(bin(data_holder[32])) + str(bin(data_holder[8])) + str(bin(data_holder[31:25], 6)) \
-#         + str(bin(data_holder[12:9], 4))
-# temp = int(imm_p, 2)
-# temp1 = intbv(temp)
-# print()
-
-
-
-# pass_Bits=intbv(int("11111110011101011100100011100011", 2))
-# print(bin(pass_Bits[31],1))
+test.decode(pass_Bits=intbv(int("11111110000111111111000011101111", 2)))
+print(test.imm)
