@@ -27,8 +27,8 @@ class Instruction:
     """
 
     def decode(self, pass_Bits):
-        data_holder = pass_Bits
-
+        data_holder = intbv(pass_Bits)
+        # print(pass_Bits)
         # ====== Opdode ====== #
         #  R         I        I(LOAD)   I(JALR)     I(sys calls)
         opcode_key = [0b0110011, 0b0010011, 0b0000011, 0b1100111, 0b1110011,
@@ -50,6 +50,7 @@ class Instruction:
                 if i == 1:  # I-Type
                     self.rd = data_holder[12:7]
                     self.func3 = data_holder[15:12]
+                    self.func7 = data_holder[32:25]
                     self.rs1 = data_holder[20:15]
                     self.imm = data_holder[32:20]
                     self.opcode = opcode_key[1]
@@ -133,7 +134,7 @@ class Instruction:
                     self.type_inst = 'J'
                     return self.opcode, self.type_inst, self.imm, self.rd
 
-
-test = Instruction()
-test.decode(pass_Bits=intbv(int("11111110000111111111000011101111", 2)))
-print(test.imm)
+#
+# test = Instruction()
+# test.decode(pass_Bits=intbv(int("11111110000111111111000011101111", 2)))
+# print(test.imm)

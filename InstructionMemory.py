@@ -1,7 +1,6 @@
 from myhdl import *
 import struct
 
-
 def to_number(buff: bytearray, size, signed, little_endian=True):
     endianness = '<' if little_endian else '>'
     if size == 1:
@@ -46,9 +45,9 @@ def readfile(path):
     return bytearray(buff)
 
 
-class Memory:
+class InstructionMemory:
 
-    def __init__(self, s, maxsize=1024):
+    def __init__(self, maxsize=1024):
 
         self.buffer = bytearray(maxsize)
         self.Max_Address = len(self.buffer)
@@ -61,25 +60,19 @@ class Memory:
 
         return retV
 
-    def write(self, address, size, data):
-
-        assert address + size <= self.Max_Address
-
-        self.buffer[address:address + size] = data
-
     def load_binary_file(self, path, starting_address=0):
 
         new_buff = readfile(path)
         # N = len(new_buff)
         self.buffer = new_buff
 
-
-a = Memory("s")
-b = readfile("C:/Users/ksa_j/PycharmProjects/texts/binarydata.txt")
-
-# print(to_number(b, 4, True))
-# print(number_to_Buff(4, 4))
-a.load_binary_file("C:/Users/ksa_j/PycharmProjects/texts/binary.txt")
-print(a.buffer)
-c = intbv(to_number(a.read(0, 4), 4, signed=True))
-print(bin(c, 32))
+#
+# a = InstructionMemory("s")
+# b = readfile("C:/Users/ksa_j/PycharmProjects/texts/binarydata.txt")
+#
+# # print(to_number(b, 4, True))
+# # print(number_to_Buff(4, 4))
+# a.load_binary_file("C:/Users/ksa_j/PycharmProjects/texts/binary.txt")
+# print(a.buffer)
+# c = intbv(to_number(a.read(0, 4), 4, signed=True))
+# print(bin(c, 32))
