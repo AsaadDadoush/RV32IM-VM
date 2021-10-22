@@ -48,7 +48,7 @@ def readfile(path):
 
 class Memory:
 
-    def __init__(self, maxsize=1024):
+    def __init__(self, maxsize=8191):
 
         self.buffer = bytearray(maxsize)
         self.Max_Address = len(self.buffer)
@@ -67,19 +67,37 @@ class Memory:
 
         self.buffer[address:address + size] = data
 
-    def load_binary_file(self, path, starting_address=0):
+    def load_binary_file(self, path, starting_address):
 
         new_buff = readfile(path)
-        # N = len(new_buff)
-        self.buffer = new_buff
 
-# # #
-# a = Memory()
-# # # b = readfile("C:/Users/ksa_j/PycharmProjects/texts/binarydata.txt")
-# # #
-# # # # print(to_number(b, 4, True))
-# # # # print(number_to_Buff(4, 4))
-# a.load_binary_file('C:/Users/axa00/Desktop/addi.txt')
-# print(type(a.read(0,1)))
-# # c = intbv(to_number(a.read(0, 3), 4, signed=True))
-# # print(bin(c, 32))
+        N = len(new_buff)
+
+        max_address = starting_address + N
+
+        if max_address > len(self.buffer):
+
+            temp = self.buffer
+
+            old_N = len(temp)
+
+            self.buffer = bytearray(max_address)
+
+            self.Max_Address = max_address
+
+            self.buffer[0:old_N] = temp
+
+            self.buffer[old_N + 1:] = new_buff
+
+        else:
+
+            self.buffer[0: N] = new_buff
+
+
+a = Memory()
+a.load_binary_file('D:/rarsProject/a2.txt', starting_address=0)
+a.load_binary_file('D:/rarsProject/a.txt', starting_address=8192)
+print(to_number(a.read(8268,4),4,True))
+a.write(8268,4,number_to_Buff(92,4))
+print(bin(to_number(a.read(158,4),4,True),32))
+# print(a.buffer)

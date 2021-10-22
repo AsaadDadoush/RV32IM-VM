@@ -77,7 +77,7 @@ class Instruction:
 
                 if i == 4:  # System calls
                     self.rd = data_holder[12:7]
-                    self.funct3 = data_holder[15:12]
+                    self.func3 = data_holder[15:12]
                     self.rs1 = data_holder[20:15]
                     self.imm = data_holder[32:20]
                     self.opcode = opcode_key[4]
@@ -87,11 +87,11 @@ class Instruction:
                 if i == 5:  # S-Type
                     self.rs1 = data_holder[20:15]
                     self.rs2 = data_holder[25:20]
-                    self.funct3 = data_holder[15:12]
+                    self.func3 = data_holder[15:12]
                     imm_p = str(bin(data_holder[32:25], 7)) + str(bin(data_holder[12:7], 5))
                     temp = int(imm_p, 2)
-                    temp1 = intbv(temp)
-                    self.imm = intbv(temp1)
+                    temp1 = intbv(temp).signed()
+                    self.imm = intbv(temp1)+0
                     self.opcode = opcode_key[5]
                     self.type_inst = 'S'
                     return self.opcode, self.rs1, self.type_inst, self.imm, self.func3, self.rs2
@@ -134,7 +134,10 @@ class Instruction:
                     self.type_inst = 'J'
                     return self.opcode, self.type_inst, self.imm, self.rd
 
-#
+
 # test = Instruction()
-# test.decode(pass_Bits=intbv(int("11111110000111111111000011101111", 2)))
-# print(test.imm)
+# test.decode(pass_Bits=intbv(int("11111110110111111111000011101111", 2)))
+# print(test.type_inst)
+# print(bin(test.opcode,7))
+# print(test.rd)
+# print(test.imm+0)
