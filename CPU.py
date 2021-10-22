@@ -1,3 +1,5 @@
+import sys
+
 from myhdl import *
 import struct
 from memory import Memory
@@ -9,9 +11,8 @@ mem = Memory()
 RegisterFile = [0 for i in range(32)]
 RegisterFile[2] = 16380
 RegisterFile[3] = 6144
-mem.load_binary_file('D:/rarsProject/ttt.txt', 0)
-mem.load_binary_file('D:/rarsProject/toto.txt', 8192)
-
+mem.load_binary_file('C:/Users/axa00/Desktop/test/soso1', 0)
+mem.load_binary_file('C:/Users/axa00/Desktop/test/soso2', 8192)
 
 def number_to_Buff(number: int, size, little_endian=True):
     endianness = '<' if little_endian else '>'
@@ -25,6 +26,9 @@ def number_to_Buff(number: int, size, little_endian=True):
         fmt = f'{endianness}q'
     else:
         raise Exception('unsupported Size')
+
+    retV = struct.pack(fmt, number)
+    return retV
 
 
 def to_number(buff: bytearray, size, signed, little_endian=True):
@@ -173,7 +177,7 @@ def cpu():
             elif ins.func3 == 0x5 and ins.func7 == 0x00:
                 RegisterFile[ins.rd] = RegisterFile[ins.rs1] >> ins.imm[4:]
                 # TODO msb-extends
-                # Shift right Arith* Immediate
+                # Shift right Arith* Immediate[32:0] &
             elif ins.func3 == 0x5 and ins.func7 == 0x20:
                 RegisterFile[ins.rd] = RegisterFile[ins.rs1] << ins.imm[4:]
 
@@ -185,7 +189,7 @@ def cpu():
                     RegisterFile[ins.rd] = 0
 
                 # TODO zero-extends
-                # Set less than (U)
+                # Set less than (U)[32:0]
             elif ins.func3 == 0x3:
                 if RegisterFile[ins.rs1] < RegisterFile[ins.rs2]:
                     RegisterFile[ins.rd] = 1
@@ -212,6 +216,17 @@ def cpu():
             RegisterFile[ins.rd] = PC + 4
             PC = RegisterFile[ins.rs1] + ins.imm.signed()
             continue
+        elif ins.type_inst == 'I(sys calls)':
+
+            if ins.imm == 0x0:
+                print(RegisterFile)
+                print(to_number(mem.read(8268, 4), 4, True))
+                print(to_number(mem.read(8272, 4), 4, True))
+                sys.exit()
+
+            elif ins.imm == 0x1:
+                pass
+
         # ================ S-Type Section ============ #
         elif ins.type_inst == 'S':
             if ins.func3 == 0x0:
@@ -219,35 +234,34 @@ def cpu():
             elif ins.func3 == 0x1:
                 mem.write((RegisterFile[ins.rs1] + ins.imm), 2, RegisterFile[ins.rs2])
             elif ins.func3 == 0x2:
-                print(type(RegisterFile[ins.rs2]))
-                print(number_to_Buff(RegisterFile[ins.rs2], 4))
-                mem.write((RegisterFile[ins.rs1] + ins.imm), 4, bytearray(RegisterFile[ins.rs2]))
+                 # a.write(8268,4,number_to_Buff(92,4))
+                mem.write((RegisterFile[ins.rs1] + ins.imm), 4, number_to_Buff(RegisterFile[ins.rs2],4))
         # ================ B-Type Section ============ #
         elif ins.type_inst == 'B':
 
             if ins.func3 == 0x0:  # beq
                 if RegisterFile[ins.rs1] == RegisterFile[ins.rs2]:
-                    PC = PC + ins.imm.signed()
+                    PC = PC + ins.imm.signed()*2
                     continue
             elif ins.func3 == 0x1:  # bne
                 if RegisterFile[ins.rs2] != RegisterFile[ins.rs1]:
-                    PC = PC + ins.imm.signed()
+                    PC = PC + ins.imm.signed()*2
                     continue
             elif ins.func3 == 0x4:  # blt
                 if RegisterFile[ins.rs1] < RegisterFile[ins.rs2]:
-                    PC = PC + ins.imm.signed()
+                    PC = PC + ins.imm.signed()*2
                     continue
             elif ins.func3 == 0x5:  # bge
                 if RegisterFile[ins.rs1] >= RegisterFile[ins.rs2]:
-                    PC = PC + ins.imm.signed()
+                    PC = PC + ins.imm.signed()*2
                     continue
             elif ins.func3 == 0x6:  # bltu
                 if RegisterFile[ins.rs1] < RegisterFile[ins.rs2]:
-                    PC = PC + ins.imm.signed()
+                    PC = PC + ins.imm.signed()*2
                     continue
             elif ins.func3 == 0x7:  # bgeu
                 if RegisterFile[ins.rs1] >= RegisterFile[ins.rs2]:
-                    PC = PC + ins.imm.signed()
+                    PC = PC + ins.imm.signed()*2
                     continue
             # ================ J-Type Section ============ #
         elif ins.type_inst == 'J':
@@ -263,12 +277,6 @@ def cpu():
             print("Instruction on memory for address %s is not correct")
 
         PC += 4
-
-    # TODO syscalls
-
-
-# def ecall(self):
-# def ebreak(self):
 
 
 cpu()

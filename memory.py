@@ -93,11 +93,12 @@ class Memory:
 
             self.buffer[0: N] = new_buff
 
-
-a = Memory()
-a.load_binary_file('D:/rarsProject/a2.txt', starting_address=0)
-a.load_binary_file('D:/rarsProject/a.txt', starting_address=8192)
-print(to_number(a.read(8268,4),4,True))
-a.write(8268,4,number_to_Buff(92,4))
-print(bin(to_number(a.read(158,4),4,True),32))
-# print(a.buffer)
+#
+# a = Memory()
+# a.load_binary_file('C:/Users/axa00/Desktop/test/soso1', starting_address=0)
+# a.load_binary_file('C:/Users/axa00/Desktop/test/soso2', starting_address=8192)
+# print(to_number(a.read(8268,4),4,True))
+# a.write(8268,4,number_to_Buff(92,4))
+# print(to_number(a.read(8268,4),4,True))
+# # # print(a.buffer)
+#

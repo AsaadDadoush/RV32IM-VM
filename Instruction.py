@@ -135,9 +135,11 @@ class Instruction:
                     return self.opcode, self.type_inst, self.imm, self.rd
 
 
-# test = Instruction()
-# test.decode(pass_Bits=intbv(int("11111110110111111111000011101111", 2)))
-# print(test.type_inst)
-# print(bin(test.opcode,7))
-# print(test.rd)
-# print(test.imm+0)
+test = Instruction()
+test.decode(pass_Bits=intbv(int("00000000111001011010001000100011", 2)))
+print(test.type_inst)
+print(bin(test.opcode,7))
+print(test.func3)
+print(test.rs1+0)
+print(test.rs2+0)
+print(test.imm+0)
