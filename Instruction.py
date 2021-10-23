@@ -29,7 +29,7 @@ class Instruction:
     def decode(self, pass_Bits):
         data_holder = intbv(pass_Bits)
         # print(pass_Bits)
-        # ====== Opdode ====== #
+        # ====== Opcode ====== #
         #  R         I        I(LOAD)   I(JALR)     I(sys calls)
         opcode_key = [0b0110011, 0b0010011, 0b0000011, 0b1100111, 0b1110011,
                       0b0100011, 0b1100011, 0b0110111, 0b0010111, 0b1101111]
@@ -121,7 +121,7 @@ class Instruction:
                     self.opcode = opcode_key[8]
                     self.type_inst = 'U(AUIPC)'
                     return self.opcode, self.type_inst, self.imm, self.rd
-                # TODO add imm value to J-Type
+
                 if i == 9:  # J-Type
                     imm_p = str(bin(data_holder[31], 1)) + str(bin(data_holder[20:12], 8)) + str(
                         bin(data_holder[20], 1)) \
@@ -135,11 +135,11 @@ class Instruction:
                     return self.opcode, self.type_inst, self.imm, self.rd
 
 
-test = Instruction()
-test.decode(pass_Bits=intbv(int("00000000111001011010001000100011", 2)))
-print(test.type_inst)
-print(bin(test.opcode,7))
-print(test.func3)
-print(test.rs1+0)
-print(test.rs2+0)
-print(test.imm+0)
+# test = Instruction()
+# test.decode(pass_Bits=intbv(int("00000000111001011010001000100011", 2)))
+# print(test.type_inst)
+# print(bin(test.opcode,7))
+# print(test.func3)
+# print(test.rs1+0)
+# print(test.rs2+0)
+# print(test.imm+0)
