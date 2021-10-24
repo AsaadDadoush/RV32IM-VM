@@ -3,6 +3,7 @@ from myhdl import *
 import struct
 from memory import Memory
 from Instruction import Instruction
+from syscalls import syscalls
 
 
 def number_to_Buff(number: int, size, little_endian=True):
@@ -42,24 +43,18 @@ class CPU:
 
     def __init__(self, mem, ins):
         self.mem = mem
-        self.RegisterFile = [intbv(0) for i in range(32)]
-        self.RegisterFile[2] = 16380
+        self.RegisterFile = [0 for i in range(32)]
+        self.RegisterFile[2] = 10016
         self.RegisterFile[3] = 6144
         self.PC = 0
         self.ins = ins
         self.flag = False
 
     def step(self):
-
         if self.PC > self.mem.Max_Address:
-            self.flag = True
             raise Exception
         self.RegisterFile[0] = 0
         self.ins.decode(bin(intbv(to_number(self.mem.read(self.PC, 4), 4, True)), 32))
-        print(bin(intbv(to_number(self.mem.read(self.PC, 4), 4, True)), 32))
-        print("Instruction type: ", self.ins.type_inst)
-        print("PC: ", self.PC)
-        print(self.RegisterFile)
 
         # ================ R-Type Section ============ #
         if self.ins.type_inst == 'R':
@@ -204,15 +199,13 @@ class CPU:
             # load word
             elif self.ins.func3 == 0x2:
                 self.RegisterFile[self.ins.rd] = to_number(self.mem.read((self.RegisterFile[self.ins.rs1]
-                                                                               + self.ins.imm.signed()), 4), 4,
-                                                                True)
+                                                                               + self.ins.imm.signed()), 4), 4, True)
 
             # TODO zero-extends
             # load Byte (U)
             elif self.ins.func3 == 0x4:
                 self.RegisterFile[self.ins.rd] = to_number(self.mem.read((self.RegisterFile[self.ins.rs1]
-                                                                               + self.ins.imm.signed(), 1), 1,
-                                                                              True))
+                                                                               + self.ins.imm.signed(), 1), 1, True))
 
             # TODO zero-extends
             # load Half (U)
@@ -232,13 +225,7 @@ class CPU:
         # Environment Call
         elif self.ins.type_inst == 'I(sys calls)':
             if self.ins.imm == 0x0:
-                print("Data Memory at Result[0]:", to_number(self.mem.read(8268, 4), 4, True))
-                print("Data Memory at Result[1]:", to_number(self.mem.read(8272, 4), 4, True))
-                sys.exit()
-            # Environment Break
-            elif self.ins.imm == 0x1:
-                pass
-
+                self.flag = syscalls(Memory=self.mem,RegisterFile=self.RegisterFile).flag
         # ================ S-Type Section ============ #
         elif self.ins.type_inst == 'S':
             # Store Byte
@@ -310,9 +297,8 @@ class CPU:
 #
 # while not test.flag:
 #     test.step()
-#
 # print("Before Executing")
 # print("Data Memory at Result[0]:", to_number(mem.read(8268, 4), 4, True))
 # print("Data Memory at Result[1]:", to_number(mem.read(8272, 4), 4, True))
-# # print("Data Memory at Result[0]:", to_number(mem.read(8268, 4), 4, True))
-# # print("Data Memory at Result[1]:", to_number(mem.read(8272, 4), 4, True))
+# print("Data Memory at Result[0]:", to_number(mem.read(8268, 4), 4, True))
+# print("Data Memory at Result[1]:", to_number(mem.read(8272, 4), 4, True))
