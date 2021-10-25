@@ -28,12 +28,11 @@ class Instruction:
 
     def decode(self, pass_Bits):
         data_holder = intbv(pass_Bits)
-        # print(pass_Bits)
-        # ====== Opcode ====== #
-        #  R         I        I(LOAD)   I(JALR)     I(sys calls)
+        # ============================== Opcodes ============================== #
+        #                R           I      I(LOAD)     I(JALR)   I(sys calls)
         opcode_key = [0b0110011, 0b0010011, 0b0000011, 0b1100111, 0b1110011,
                       0b0100011, 0b1100011, 0b0110111, 0b0010111, 0b1101111]
-        #  S         B         U(LUI)    U(AUIPC)   J(JAL)
+        #                S          B         U(LUI)    U(AUIPC)   J(JAL)
 
         for i in range(len(opcode_key)):
             if data_holder[7:0] == opcode_key[i]:
@@ -91,7 +90,7 @@ class Instruction:
                     imm_p = str(bin(data_holder[32:25], 7)) + str(bin(data_holder[12:7], 5))
                     temp = int(imm_p, 2)
                     temp1 = intbv(temp).signed()
-                    self.imm = intbv(temp1)+0
+                    self.imm = intbv(temp1) + 0
                     self.opcode = opcode_key[5]
                     self.type_inst = 'S'
                     return self.opcode, self.rs1, self.type_inst, self.imm, self.func3, self.rs2
@@ -133,4 +132,3 @@ class Instruction:
                     self.opcode = opcode_key[9]
                     self.type_inst = 'J'
                     return self.opcode, self.type_inst, self.imm, self.rd
-                
