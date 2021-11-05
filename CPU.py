@@ -42,8 +42,8 @@ class CPU:
     def __init__(self, mem, ins):
         self.mem = mem
         self.RegisterFile = [intbv(0)[32:] for i in range(32)]
-        self.RegisterFile[2] = 10016
-        self.RegisterFile[3] = 6144
+        self.RegisterFile[2] = intbv(10016)[32:]
+        self.RegisterFile[3] = intbv(6144)[32:]
         self.PC = 0
         self.ins = ins
         self.flag = False
@@ -51,7 +51,8 @@ class CPU:
     def step(self):
         if self.PC > self.mem.Max_Address:
             raise Exception
-        self.RegisterFile[0] = 0
+
+        self.RegisterFile[0] = intbv(0)[32:]
         self.ins.decode(bin(intbv(to_number(self.mem.read(self.PC, 4), 4, True)), 32))
 
         # ================ R-Type Section ============ #
@@ -59,50 +60,57 @@ class CPU:
 
             if self.ins.func3 == 0x00 and self.ins.func7 == 0x00:
                 # add
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] + self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] + self.RegisterFile[self.ins.rs2])[32:]
 
                 # sub
             elif self.ins.func3 == 0x00 and self.ins.func7 == 0x20:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] - self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] - self.RegisterFile[self.ins.rs2])[32:]
 
                 # XOR
             elif self.ins.func3 == 0x4 and self.ins.func7 == 0x00:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] ^ self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] ^ self.RegisterFile[self.ins.rs2])[32:]
 
                 # OR
             elif self.ins.func3 == 0x6 and self.ins.func7 == 0x00:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] | self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] | self.RegisterFile[self.ins.rs2])[32:]
 
                 # AND
             elif self.ins.func3 == 0x7 and self.ins.func7 == 0x00:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] & self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] & self.RegisterFile[self.ins.rs2])[32:]
 
                 # shift left logical
             elif self.ins.func3 == 0x1 and self.ins.func7 == 0x00:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] << self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] << self.RegisterFile[self.ins.rs2])[32:]
 
                 # shift right logical
             elif self.ins.func3 == 0x5 and self.ins.func7 == 0x00:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] >> self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] >> self.RegisterFile[self.ins.rs2])[32:]
 
                 # shift right Arith*
             elif self.ins.func3 == 0x5 and self.ins.func7 == 0x20:
-                temp = intbv(self.RegisterFile[self.ins.rs1] << self.RegisterFile[self.ins.rs2]).signed()
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] >> self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] >> self.RegisterFile[self.ins.rs2])[32:]
 
                 # Set less than
             elif self.ins.func3 == 0x2 and self.ins.func7 == 0x00:
                 if self.RegisterFile[self.ins.rs1] < self.RegisterFile[self.ins.rs2]:
-                    self.RegisterFile[self.ins.rd] = 1
+                    self.RegisterFile[self.ins.rd] = intbv(1)[32:]
                 else:
-                    self.RegisterFile[self.ins.rd] = 0
+                    self.RegisterFile[self.ins.rd] = intbv(0)[32:]
 
                 # Set less than (U)
             elif self.ins.func3 == 0x2 and self.ins.func7 == 0x00:
                 if self.RegisterFile[self.ins.rs1] < self.RegisterFile[self.ins.rs2]:
-                    self.RegisterFile[self.ins.rd] = 1
+                    self.RegisterFile[self.ins.rd] = intbv(1).unsigned()
                 else:
-                    self.RegisterFile[self.ins.rd] = 0
+                    self.RegisterFile[self.ins.rd] = intbv(0).unsigned()
 
                 # mul
             elif self.ins.func3 == 0x0 and self.ins.func7 == 0x01:
@@ -123,93 +131,96 @@ class CPU:
 
             # DIV
             elif self.ins.func3 == 0x4 and self.ins.func7 == 0x01:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] / self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] / self.RegisterFile[self.ins.rs2])[32:]
 
             # DIV (U)
             elif self.ins.func3 == 0x5 and self.ins.func7 == 0x01:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] / self.RegisterFile[self.ins.rs2]
+                temp = self.RegisterFile[self.ins.rs1] / self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(temp)[32].unsigned()
             # Remainder
             elif self.ins.func3 == 0x6 and self.ins.func7 == 0x01:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] % self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(
+                    self.RegisterFile[self.ins.rs1] % self.RegisterFile[self.ins.rs2])[32:]
             # Remainder (U)
             elif self.ins.func3 == 0x7 and self.ins.func7 == 0x01:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] % self.RegisterFile[self.ins.rs2]
+                temp = self.RegisterFile[self.ins.rs1] % self.RegisterFile[self.ins.rs2]
+                self.RegisterFile[self.ins.rd] = intbv(temp)[32].unsigned()
 
         # ================ I-Type Section ============ #
         elif self.ins.type_inst == 'I':
             # ADD Immediate
             if self.ins.func3 == 0x0:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] + self.ins.imm.signed()
+                self.RegisterFile[self.ins.rd] = intbv(self.RegisterFile[self.ins.rs1] + self.ins.imm.signed())[32:]
             # XOR Immediate
             elif self.ins.func3 == 0x4:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] ^ self.ins.imm.signed()
+                self.RegisterFile[self.ins.rd] = intbv(self.RegisterFile[self.ins.rs1] ^ self.ins.imm.signed())[32:]
 
             # OR Immediate
             elif self.ins.func3 == 0x6:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] | self.ins.imm.signed()
+                self.RegisterFile[self.ins.rd] = intbv(self.RegisterFile[self.ins.rs1] | self.ins.imm.signed())[32:]
 
             # AND Immediate
             elif self.ins.func3 == 0x7:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] & self.ins.imm.signed()
+                self.RegisterFile[self.ins.rd] = intbv(self.RegisterFile[self.ins.rs1] & self.ins.imm.signed())[32:]
 
             # Shift left logical Immediate
             elif self.ins.func3 == 0x1 and self.ins.func7 == 0x00:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] << self.ins.imm[5:]
+                self.RegisterFile[self.ins.rd] = intbv(self.RegisterFile[self.ins.rs1] << self.ins.imm[5:])[32:]
 
             # Shift right logical Immediate
             elif self.ins.func3 == 0x5 and self.ins.func7 == 0x00:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] >> self.ins.imm[5:]
+                self.RegisterFile[self.ins.rd] = intbv(self.RegisterFile[self.ins.rs1] >> self.ins.imm[5:])[32:]
 
             # Shift right Arith*
             elif self.ins.func3 == 0x5 and self.ins.func7 == 0x20:
-                self.RegisterFile[self.ins.rd] = self.RegisterFile[self.ins.rs1] << self.ins.imm[5:]
+                self.RegisterFile[self.ins.rd] = intbv(self.RegisterFile[self.ins.rs1] << self.ins.imm[5:])[32:]
 
             # Set less than
             elif self.ins.func3 == 0x2:
                 if self.RegisterFile[self.ins.rs1] < self.RegisterFile[self.ins.rs2]:
-                    self.RegisterFile[self.ins.rd] = 1
+                    self.RegisterFile[self.ins.rd] = intbv(1)[32:]
                 else:
-                    self.RegisterFile[self.ins.rd] = 0
+                    self.RegisterFile[self.ins.rd] = intbv(0)[32:]
 
             # Set less than (U)
             elif self.ins.func3 == 0x3:
-                if self.RegisterFile[self.ins.rs1] < self.RegisterFile[self.ins.rs2]:
-                    self.RegisterFile[self.ins.rd] = 1
+                if self.RegisterFile[self.ins.rs1] < self.ins.imm:
+                    self.RegisterFile[self.ins.rd] = intbv(1).unsigned()[32:]
                 else:
-                    self.RegisterFile[self.ins.rd] = 0
+                    self.RegisterFile[self.ins.rd] = intbv(0).unsigned()[32:]
 
         # ================ I-Type Section (LOAD)  ============ #
         elif self.ins.type_inst == 'I(LOAD)':
             # load Byte
             if self.ins.func3 == 0x0:
-                self.RegisterFile[self.ins.rd] = to_number(self.mem.read(self.RegisterFile[self.ins.rs1]
-                                                                              + self.ins.imm.signed(), 1), 1, True)
+                self.RegisterFile[self.ins.rd] = intbv(to_number(self.mem.read(self.RegisterFile[self.ins.rs1]
+                                                                               + self.ins.imm.signed(), 1), 1,
+                                                                 True))[32:]
             # load Half
             elif self.ins.func3 == 0x1:
-                self.RegisterFile[self.ins.rd] = to_number(self.mem.read((self.RegisterFile[self.ins.rs1] +
-                                                                          self.ins.imm.signed(), 2), 2, True))
+                self.RegisterFile[self.ins.rd] = intbv(to_number(self.mem.read(self.RegisterFile[self.ins.rs1]
+                                                                               + self.ins.imm.signed(), 2), 2,
+                                                                 True))[32:]
             # load word
             elif self.ins.func3 == 0x2:
-                self.RegisterFile[self.ins.rd] = to_number(self.mem.read((self.RegisterFile[self.ins.rs1]
-                                                                          + self.ins.imm.signed()), 4), 4,
-                                                           True)
+                self.RegisterFile[self.ins.rd] = intbv(to_number(self.mem.read(self.RegisterFile[self.ins.rs1]
+                                                                               + self.ins.imm.signed(), 4), 4,
+                                                                 True))[32:]
 
-
-            # load Byte (U)
+            # load Byte(U)
             elif self.ins.func3 == 0x4:
-                self.RegisterFile[self.ins.rd] = to_number(self.mem.read((self.RegisterFile[self.ins.rs1]
-                                                                          + self.ins.imm.signed(), 1), 1,
-                                                                         True))
+                temp = to_number(self.mem.read((self.RegisterFile[self.ins.rs1] + self.ins.imm.signed(), 1), 1, True))
+                self.RegisterFile[self.ins.rd] = intbv(temp).unsigned()
 
             # load Half (U)
             elif self.ins.func3 == 0x5:
-                self.RegisterFile[self.ins.rd] = to_number(self.mem.read((self.RegisterFile[self.ins.rs1] +
-                                                                          self.ins.imm.signed()), 2), 2, True)
-
+                temp = to_number(self.mem.read((self.RegisterFile[self.ins.rs1] + self.ins.imm.signed()), 2), 2, True)
+                self.RegisterFile[self.ins.rd] = intbv(temp).unsigned()
         # ================ I-Type Section (JALR)  ============ #
         # Jump And Link Reg
         elif self.ins.type_inst == 'I(JALR)':
-            self.RegisterFile[self.ins.rd] = self.PC + 4
+            self.RegisterFile[self.ins.rd] = intbv(self.PC + 4)[32:]
             self.PC = self.RegisterFile[self.ins.rs1] + self.ins.imm.signed()
             return self.RegisterFile
 
@@ -272,16 +283,16 @@ class CPU:
         # ================ J-Type Section ============ #
         # JAL
         elif self.ins.type_inst == 'J':
-            self.RegisterFile[self.ins.rd] = self.PC + 4
+            self.RegisterFile[self.ins.rd] = intbv(self.PC + 4)[32:]
             self.PC = self.PC + self.ins.imm.signed() * 2
             return self.RegisterFile
         # ================ U-Type Section ============ #
         # load upper imm
         elif self.ins.type_inst == 'U(LUI)':
-            self.RegisterFile[self.ins.rd] = self.ins.imm << 12
+            self.RegisterFile[self.ins.rd] = intbv(self.ins.imm << 12)[32:]
         # Add upper Imm to PC
         elif self.ins.type_inst == 'U(AUIPC)':
-            self.RegisterFile[self.ins.rd] = self.PC + (self.ins.imm.signed() << 12)
+            self.RegisterFile[self.ins.rd] = intbv(self.PC + (self.ins.imm.signed() << 12))[32:]
         else:
             print("Instruction on text memory is not correct")
 

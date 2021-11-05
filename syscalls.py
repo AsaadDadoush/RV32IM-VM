@@ -1,22 +1,13 @@
-import math
-
-
 class syscalls:
 
     def __init__(self, Memory, RegisterFile):
         self.Memory = Memory
-        self.a0 = RegisterFile[10]
-        self.a1 = RegisterFile[11]
-        self.a2 = RegisterFile[12]
-        self.a7 = RegisterFile[17]
         self.flag = False
-        if self.a7 == 93:
+        if RegisterFile[17] == 93:
             self.flag = True
-        elif self.a7 == 64:
-            if self.a0 == 1:
-                a = ''
-                for i in range(math.ceil(self.a2 / 4)):
-                    a = a + bytearray.decode(Memory.read(self.a1, 4))
-                    self.a1 += 4
-                print(a)
+        elif RegisterFile[17] == 64:
+            if RegisterFile[10] == 1:
+                for i in range(RegisterFile[12]):
+                    print(bytearray.decode(Memory.read(RegisterFile[11], 1)), end="")
+                    RegisterFile[11] += 1
                 self.flag = False

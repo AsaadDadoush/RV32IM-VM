@@ -44,9 +44,8 @@ class Instruction:
                     self.func7 = data_holder[32:25]
                     self.opcode = opcode_key[0]
                     self.type_inst = 'R'
-                    return self.opcode, self.rd, self.func3, self.rs1, self.rs2, self.func7, self.type_inst
 
-                if i == 1:  # I-Type
+                elif i == 1:  # I-Type
                     self.rd = data_holder[12:7]
                     self.func3 = data_holder[15:12]
                     self.func7 = data_holder[32:25]
@@ -54,48 +53,43 @@ class Instruction:
                     self.imm = data_holder[32:20]
                     self.opcode = opcode_key[1]
                     self.type_inst = 'I'
-                    return self.opcode, self.rd, self.func3, self.rs1, self.type_inst, self.imm
 
-                if i == 2:  # Load instructions
+                elif i == 2:  # Load instructions
                     self.rd = data_holder[12:7]
                     self.func3 = data_holder[15:12]
                     self.rs1 = data_holder[20:15]
                     self.imm = data_holder[32:20]
                     self.opcode = opcode_key[2]
                     self.type_inst = 'I(LOAD)'
-                    return self.opcode, self.rd, self.func3, self.rs1, self.type_inst, self.imm
 
-                if i == 3:  # Jump instructions (JALR)
+                elif i == 3:  # Jump instructions (JALR)
                     self.rd = data_holder[12:7]
                     self.func3 = data_holder[15:12]
                     self.rs1 = data_holder[20:15]
                     self.imm = data_holder[32:20]
                     self.opcode = opcode_key[3]
                     self.type_inst = 'I(JALR)'
-                    return self.opcode, self.rd, self.func3, self.rs1, self.type_inst, self.imm
 
-                if i == 4:  # System calls
+                elif i == 4:  # System calls
                     self.rd = data_holder[12:7]
                     self.func3 = data_holder[15:12]
                     self.rs1 = data_holder[20:15]
                     self.imm = data_holder[32:20]
                     self.opcode = opcode_key[4]
                     self.type_inst = 'I(sys calls)'
-                    return self.opcode, self.rd, self.func3, self.rs1, self.type_inst, self.imm
 
-                if i == 5:  # S-Type
+                elif i == 5:  # S-Type
                     self.rs1 = data_holder[20:15]
                     self.rs2 = data_holder[25:20]
                     self.func3 = data_holder[15:12]
                     imm_p = str(bin(data_holder[32:25], 7)) + str(bin(data_holder[12:7], 5))
                     temp = int(imm_p, 2)
                     temp1 = intbv(temp).signed()
-                    self.imm = intbv(temp1) + 0
+                    self.imm = intbv(temp1)
                     self.opcode = opcode_key[5]
                     self.type_inst = 'S'
-                    return self.opcode, self.rs1, self.type_inst, self.imm, self.func3, self.rs2
 
-                if i == 6:  # B-Type
+                elif i == 6:  # B-Type
                     self.func3 = data_holder[15:12]
                     self.rs1 = data_holder[20:15]
                     self.rs2 = data_holder[25:20]
@@ -105,23 +99,20 @@ class Instruction:
                     temp = intbv(imm_p)[12:].signed()
                     self.imm = temp
                     self.type_inst = 'B'
-                    return self.opcode, self.rs1, self.type_inst, self.imm, self.func3, self.rs2
 
-                if i == 7:  # U-Type(Load Up)
+                elif i == 7:  # U-Type(Load Up)
                     self.rd = data_holder[12:7]
                     self.imm = data_holder[32:12]
                     self.opcode = opcode_key[7]
                     self.type_inst = 'U(LUI)'
-                    return self.opcode, self.type_inst, self.imm, self.rd
 
-                if i == 8:  # U-Type(AUIPC)
+                elif i == 8:  # U-Type(AUIPC)
                     self.rd = data_holder[12:7]
                     self.imm = data_holder[32:12]
                     self.opcode = opcode_key[8]
                     self.type_inst = 'U(AUIPC)'
-                    return self.opcode, self.type_inst, self.imm, self.rd
 
-                if i == 9:  # J-Type
+                elif i == 9:  # J-Type
                     imm_p = str(bin(data_holder[31], 1)) + str(bin(data_holder[20:12], 8)) + str(
                         bin(data_holder[20], 1)) \
                             + str(bin(data_holder[31:21], 10))
@@ -131,4 +122,3 @@ class Instruction:
                     self.rd = data_holder[12:7]
                     self.opcode = opcode_key[9]
                     self.type_inst = 'J'
-                    return self.opcode, self.type_inst, self.imm, self.rd
